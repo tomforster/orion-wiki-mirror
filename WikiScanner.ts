@@ -20,7 +20,7 @@ export class WikiScanner
         try
         {
             console.log("starting scan");
-            browser = await puppeteer.launch();
+            browser = await puppeteer.launch(({args: ['--no-sandbox', '--disable-setuid-sandbox']}));
             const browserPage = await browser.newPage();
     
             let nextPageUrl:string;
