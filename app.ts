@@ -5,21 +5,10 @@ import createError = require('http-errors');
 import {WikiPage} from "./entity/WikiPage";
 import "reflect-metadata";
 import {createConnection, getRepository} from "typeorm";
-import {SqliteConnectionOptions} from "typeorm/driver/sqlite/SqliteConnectionOptions";
 import {WikiScanner} from "./WikiScanner";
 import {Express, Request, Response} from "express";
 
-const connectionOptions:SqliteConnectionOptions = {
-    type: "sqlite",
-    database: "test.sqlite",
-    entities: [
-        WikiPage
-    ],
-    synchronize: true,
-    logging: false
-};
-
-export const appPromise = createConnection(connectionOptions).then(connection =>
+export const appPromise = createConnection().then(connection =>
 {
     const app:Express = express();
     

@@ -35,11 +35,6 @@ export class WikiScanner
                 if(wikiPage.exists) getRepository(WikiPage).save(wikiPage);
             }
             
-            // Object.keys(this.wikiMap).map(key =>
-            // {
-            //     if(!this.wikiMap[key].exists) delete this.wikiMap[key];
-            // });
-            
             return this.wikiMap;
         }
         catch (e)
@@ -52,7 +47,7 @@ export class WikiScanner
         }
     }
     
-    private async scanWikiPage(browserPage, url:string):Promise<WikiPage | null>
+    private async scanWikiPage(browserPage, url:string, attempts:number = 0):Promise<WikiPage | null>
     {
         console.log("Scanning", url);
         try
@@ -75,8 +70,10 @@ export class WikiScanner
         }
         catch(error)
         {
-            console.error("Failed to load", url, error);
-            return await this.scanWikiPage(browserPage, url);
+            if(attempts > 4) throw new Error("Load failed after 5 retries, cancelling");
+            console.error(`Failed to load ${url} attempt ${attempts+1}`, error);
+            attempts++;
+            return await this.scanWikiPage(browserPage, url, attempts);
         }
     }
 }
