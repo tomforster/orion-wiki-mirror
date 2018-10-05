@@ -65,6 +65,7 @@ export class WikiScanner
             const fragment = $("<div>"+content+"</div>");
             fragment.find("*").removeAttr("style");
             fragment.find(".tags").remove();
+            fragment.find("img").remove();
             fragment.find("a[href]").map((i, a) => {
                 $(a).attr("href", $(a).attr("href").replace("doku.php?id=", ""));
             });
