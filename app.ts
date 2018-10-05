@@ -7,6 +7,9 @@ import "reflect-metadata";
 import {createConnection, getRepository} from "typeorm";
 import {WikiScanner} from "./WikiScanner";
 import {Express, Request, Response} from "express";
+import * as path from "path";
+
+const startUrl = "start";
 
 export const appPromise = createConnection().then(connection =>
 {
@@ -16,13 +19,16 @@ export const appPromise = createConnection().then(connection =>
     app.use(express.json());
     app.use(express.urlencoded({ extended: true }));
     
+    app.use(express.static(process.env.PWD && path.join(process.env.PWD, 'static') || 'static'));
+    app.set('view engine', 'pug');
+    
     app.get("/:path?", async (request:Request, response:Response, next: Function) =>
     {
-        const name = (request.params && request.params.path || "rules").toLowerCase();
+        const name = (request.params && request.params.path || startUrl).toLowerCase();
         const wikiPage = await getRepository(WikiPage).findOne({name}, {order:{createdOn:"DESC"}});
         if(wikiPage)
         {
-            response.send(wikiPage.content);
+            response.render("index",{content:wikiPage.content, name:wikiPage.name});
         }
         else next();
     });
@@ -46,7 +52,7 @@ export const appPromise = createConnection().then(connection =>
     });
     
     const wikiScanner = new WikiScanner();
-    wikiScanner.doScan("rules");
+    // wikiScanner.doScan(startUrl);
     
     return app;
 });

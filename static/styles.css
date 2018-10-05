@@ -1,0 +1,16 @@
+.wikilink2
+{
+    color: #ff0b2f;
+}
+
+.menu
+{
+    display: flex;
+    padding: 10px;
+    border-bottom:1px solid;
+}
+
+.menu-item
+{
+    margin-right: 10px;
+}

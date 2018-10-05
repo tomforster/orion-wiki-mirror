@@ -1,0 +1,18 @@
+doctype html
+html
+    head
+        link(rel="stylesheet" href="styles.css")
+        link(rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.0/normalize.min.css")
+        title= name
+    body
+        .menu
+            .menu-item
+                a(href="/the_game") The Game
+            .menu-item
+                a(href="/factions") Factions
+            .menu-item
+                a(href="/galactipedia") Galactipedia
+            .menu-item
+                a(href="/rules") Rules
+
+        div!= content

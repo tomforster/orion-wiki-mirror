@@ -61,12 +61,14 @@ export class WikiScanner
             const ids = hrefs.map(h => h.slice(46).split("#")[0]);
             if(content.indexOf("topic does not exist") > -1) return new WikiPage(url);
             content = content.replace("<strong><span>+</span></strong>", "");
-            const $ = cheerio.load(content);
-            $("*").removeAttr('style');
-            $("a[href]").map((i, a) => {
+            const $ = cheerio.load("");
+            const fragment = $("<div>"+content+"</div>");
+            fragment.find("*").removeAttr("style");
+            fragment.find(".tags").remove();
+            fragment.find("a[href]").map((i, a) => {
                 $(a).attr("href", $(a).attr("href").replace("doku.php?id=", ""));
             });
-            return new WikiPage(url, $.html(), ids);
+            return new WikiPage(url, fragment.html(), ids);
         }
         catch(error)
         {
