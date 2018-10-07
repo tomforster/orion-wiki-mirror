@@ -25,7 +25,7 @@ export const appPromise = createConnection().then(connection =>
     app.get("/search", async (request:Request, response:Response, next: Function) =>
     {
         const q = request.query.q || "";
-        const pages = await getRepository(WikiPage).find({name: Like(`%${q.toLowerCase()}%`), content: Like(`%${q.toLowerCase()}%`)});
+        const pages = await getRepository(WikiPage).createQueryBuilder("wikipage").where("wikipage.name like :q or wikipage.content like :q", {q: `%${q.toLowerCase()}%`}).getMany();
         const pageNames = pages.map(page => page.name);
         response.render("search",{name: q, results: pageNames});
     });
