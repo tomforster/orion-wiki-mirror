@@ -6,16 +6,46 @@
 .menu
 {
     display: flex;
-    padding: 10px;
     border-bottom:1px solid;
+    align-items: center;
+    flex-wrap: wrap;
 }
 
 .menu-item
 {
     margin-right: 10px;
+    padding: 10px;
 }
 
 .content
 {
     padding:10px;
+}
+
+.results
+{
+    display: flex;
+    flex-direction: column;
+}
+
+.search-box
+{
+    flex: 1 0;
+    /*display: flex;*/
+    /*justify-content: flex-end;*/
+    align-items: center;
+}
+
+#dw__toc
+{
+    float:right;
+    padding: 10px;
+}
+
+@media(max-width: 600px)
+{
+    #dw__toc
+    {
+        display: none;
+    }
 }

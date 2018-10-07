@@ -1,9 +1,11 @@
 doctype html
 html
     head
-        link(rel="stylesheet" href="styles.css")
+        meta(name="viewport" content="width=device-width")
+        link(rel="stylesheet" href="/styles.css")
         link(rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.0/normalize.min.css")
-        title= name
+        block title
+            title= name
     body
         .menu
             .menu-item
@@ -16,5 +18,8 @@ html
                 a(href="/galactipedia") Galactipedia
             .menu-item
                 a(href="/rules") Rules
-
-        .content!= content
+            form.menu-item.search-box(action="/search")
+                | Search&nbsp;
+                input(name="q")
+        block content
+            .content!= content

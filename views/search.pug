@@ -1,0 +1,12 @@
+extends index
+
+block title
+    title Search: #{name}
+
+block content
+    .content
+        h1 Search Results: #{name}
+        ul.results
+            each r in results
+                li
+                    a.result(href="/"+r)= r

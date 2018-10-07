@@ -4,8 +4,8 @@ import createError = require('http-errors');
 
 import {WikiPage} from "./entity/WikiPage";
 import "reflect-metadata";
-import {createConnection, getRepository} from "typeorm";
-import {WikiScanner} from "./WikiScanner";
+import {createConnection, getRepository, Like} from "typeorm";
+import {WikiMap, WikiScanner} from "./WikiScanner";
 import {Express, Request, Response} from "express";
 import * as path from "path";
 
@@ -22,6 +22,14 @@ export const appPromise = createConnection().then(connection =>
     app.use(express.static(process.env.PWD && path.join(process.env.PWD, 'static') || 'static'));
     app.set('view engine', 'pug');
     
+    app.get("/search", async (request:Request, response:Response, next: Function) =>
+    {
+        const q = request.query.q || "";
+        const pages = await getRepository(WikiPage).find({name: Like(`%${q.toLowerCase()}%`), content: Like(`%${q.toLowerCase()}%`)});
+        const pageNames = pages.map(page => page.name);
+        response.render("search",{name: q, results: pageNames});
+    });
+    
     app.get("/:path?", async (request:Request, response:Response, next: Function) =>
     {
         const name = (request.params && request.params.path || startUrl).toLowerCase();
@@ -30,7 +38,7 @@ export const appPromise = createConnection().then(connection =>
         {
             response.render("index",{content:wikiPage.content, name:wikiPage.name});
         }
-        else next();
+        else response.render("index",{content:"Page not found.", name:"Page not found"});
     });
     
     // catch 404 and forward to error handler
@@ -52,7 +60,12 @@ export const appPromise = createConnection().then(connection =>
     });
     
     const wikiScanner = new WikiScanner();
-    // wikiScanner.doScan(startUrl);
+    // wikiScanner.doScan(startUrl).then(wikiMap => {
+    //
+    //     getRepository(WikiPage).clear().then(() => {
+    //         Object.keys(wikiMap).forEach(key => getRepository(WikiPage).save(wikiMap[key]));
+    //     });
+    // });
     
     return app;
 });

@@ -32,8 +32,9 @@ export class WikiScanner
                 {
                     if(!this.wikiMap[linkUrl]) this.wikiMap[linkUrl] = null;
                 });
-                if(wikiPage.exists) getRepository(WikiPage).save(wikiPage);
             }
+            
+            Object.keys(this.wikiMap).filter(key => !this.wikiMap[key].exists).forEach(key => delete this.wikiMap[key]);
             
             return this.wikiMap;
         }
