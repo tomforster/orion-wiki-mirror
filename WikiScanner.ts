@@ -1,5 +1,4 @@
 import {WikiPage} from "./entity/WikiPage";
-import {getRepository} from "typeorm";
 const puppeteer = require("puppeteer");
 const cheerio = require("cheerio");
 
@@ -10,12 +9,10 @@ export class WikiMap
 
 export class WikiScanner
 {
-    wikiMap:WikiMap;
-    
-    async doScan(startUrl:string):Promise<WikiMap>
+    static async doScan(startUrl:string):Promise<WikiMap>
     {
         let browser;
-        this.wikiMap = {[startUrl]:null};
+        const wikiMap = {[startUrl]:null};
     
         try
         {
@@ -24,19 +21,19 @@ export class WikiScanner
             const browserPage = await browser.newPage();
     
             let nextPageUrl:string;
-            while(nextPageUrl = Object.keys(this.wikiMap).find(key => !this.wikiMap[key]))
+            while(!!(nextPageUrl = Object.keys(wikiMap).find(key => !wikiMap[key])))
             {
-                const wikiPage = await this.scanWikiPage(browserPage, nextPageUrl);
-                this.wikiMap[nextPageUrl] = wikiPage;
+                const wikiPage = await WikiScanner.scanWikiPage(browserPage, nextPageUrl);
+                wikiMap[nextPageUrl] = wikiPage;
                 wikiPage.linkUrls.map(linkUrl =>
                 {
-                    if(!this.wikiMap[linkUrl]) this.wikiMap[linkUrl] = null;
+                    if(!wikiMap[linkUrl]) wikiMap[linkUrl] = null;
                 });
             }
             
-            Object.keys(this.wikiMap).filter(key => !this.wikiMap[key].exists).forEach(key => delete this.wikiMap[key]);
+            Object.keys(wikiMap).filter(key => !wikiMap[key].exists).forEach(key => delete wikiMap[key]);
             
-            return this.wikiMap;
+            return wikiMap;
         }
         catch (e)
         {
@@ -48,7 +45,7 @@ export class WikiScanner
         }
     }
     
-    private async scanWikiPage(browserPage, url:string, attempts:number = 0):Promise<WikiPage | null>
+    private static async scanWikiPage(browserPage, url:string, attempts:number = 0):Promise<WikiPage | null>
     {
         console.log("Scanning", url);
         try

@@ -4,15 +4,18 @@ import createError = require('http-errors');
 
 import {WikiPage} from "./entity/WikiPage";
 import "reflect-metadata";
-import {createConnection, getRepository, Like} from "typeorm";
-import {WikiMap, WikiScanner} from "./WikiScanner";
+import {createConnection, getRepository} from "typeorm";
+import {WikiScanner} from "./WikiScanner";
 import {Express, Request, Response} from "express";
 import * as path from "path";
 
 const startUrl = "start";
+const scanKey = process.env.SCAN_KEY;
 
 export const appPromise = createConnection().then(connection =>
 {
+    console.log("Connected to DB!");
+    
     const app:Express = express();
     
     app.use(logger('dev'));
@@ -21,6 +24,30 @@ export const appPromise = createConnection().then(connection =>
     
     app.use(express.static(process.env.PWD && path.join(process.env.PWD, 'static') || 'static'));
     app.set('view engine', 'pug');
+    
+    app.get("/doscan/:key", async (request:Request, response:Response) =>
+    {
+        if(!scanKey)
+        {
+            response.status(200).send("No key set");
+            return;
+        }
+    
+        if(scanKey !== request.params.key)
+        {
+            response.status(200).send("Wrong key");
+            return;
+        }
+    
+        WikiScanner.doScan(startUrl).then(wikiMap =>
+        {
+            getRepository(WikiPage).clear().then(() => {
+                Object.keys(wikiMap).forEach(key => getRepository(WikiPage).save(wikiMap[key]));
+            });
+        });
+        
+        response.send("Scan Starting...");
+    });
     
     app.get("/search", async (request:Request, response:Response, next: Function) =>
     {
@@ -58,14 +85,6 @@ export const appPromise = createConnection().then(connection =>
         res.status(err.status || 500);
         res.send(err);
     });
-    
-    const wikiScanner = new WikiScanner();
-    // wikiScanner.doScan(startUrl).then(wikiMap => {
-    //
-    //     getRepository(WikiPage).clear().then(() => {
-    //         Object.keys(wikiMap).forEach(key => getRepository(WikiPage).save(wikiMap[key]));
-    //     });
-    // });
     
     return app;
 });

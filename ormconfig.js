@@ -2,6 +2,8 @@ const PostgressConnectionStringParser = require('pg-connection-string');
 
 const connectionOptions = PostgressConnectionStringParser.parse(process.env.DB_URL);
 
+console.log("Connecting to DB...");
+
 module.exports = {
     type: "postgres",
     host: connectionOptions.host,
@@ -17,7 +19,7 @@ module.exports = {
     ],
     synchronize: true,
     extra: {
-        "ssl": true
+        "ssl": process.env.USE_SSL || false
     },
     cli: {
         migrationsDir: "migration"
